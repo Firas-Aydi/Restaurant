@@ -1,0 +1,125 @@
+<!-- <p>mappp</p>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Map des Restaurants</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+      #map {
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map" style="height: 600px"></div>
+
+    <script>
+      updateMapWithReviews();
+    </script>
+  </body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Map des Restaurants</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    #map {
+      height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map" style="height: 600px"></div>
+
+  <!-- Exemple de génération dynamique des éléments <div> -->
+  <!-- <div id="reviews-TacoBell">Reviews pour Taco Bell</div>
+  <div id="menu-TacoBell">Menu pour Taco Bell</div> -->
+
+  <script>
+    // Cette fonction est juste pour simuler la fonction updateMapWithReviews()
+    // function updateMapWithReviews() {
+    // const restaurants = this.restaurants;
+    // if (restaurants) {
+    //   for (const restaurant of restaurants) {
+    //     let TerribleReviews = 0;
+    //     let PoorReviews = 0;
+    //     let AverageReviews = 0;
+    //     let GoodReviews = 0;
+    //     let ExcellentReviews = 0;
+
+    //     for (const review of restaurant.reviews) {
+    //       this.http
+    //         .post<any>('http://localhost:5000/predict_sentiment', {
+    //           text: review.text,
+    //         })
+    //         .subscribe((data) => {
+    //           switch (data.sentiment) {
+    //             case 'Terrible':
+    //               TerribleReviews++;
+    //               break;
+    //             case 'Poor':
+    //               PoorReviews++;
+    //               break;
+    //             case 'Average':
+    //               AverageReviews++;
+    //               break;
+    //             case 'Very good':
+    //               GoodReviews++;
+    //               break;
+    //             case 'Excellent':
+    //               ExcellentReviews++;
+    //               break;
+    //           }
+
+    //           let popupContent = `<br><button (click)="showReviews('${restaurant.restaurantName}')">Reviews</button>`;
+    //           console.log("popupContent restaurantName: ",restaurant.restaurantName)
+    //           popupContent += `<button (click)="showMenu('${restaurant.restaurantName}')">Menu</button></br>`;
+    //           // popupContent += `<div id="restaurantInfo${restaurant.restaurantName}">`;
+    //           popupContent += `<b>${restaurant.restaurantName}</b><br>
+    //                             ${restaurant.address}, ${restaurant.city}, ${restaurant.state} ${restaurant.postalCode}<br>
+    //                             Stars: ${restaurant.stars}<br>`;
+    //           popupContent += `<div style='color:green;'><b>Excellent reviews: ${ExcellentReviews}</b></div>`;
+    //           popupContent += `<div style='color:blue;'><b>Very good reviews: ${GoodReviews}</b></div>`;
+    //           popupContent += `<div style='color:yellow;'><b>Average reviews: ${AverageReviews}</b></div>`;
+    //           popupContent += `<div style='color:orange;'><b>Poor reviews: ${PoorReviews}</b></div>`;
+    //           popupContent += `<div style='color:red;'><b>Terrible reviews: ${TerribleReviews}</b></div>`;
+    //           popupContent += `<br><b>Reviews:</b><br>`;
+    //           // popupContent += `<div id="reviews-${restaurant.restaurantName}" style="display:none">`;
+    //           for (const review of restaurant.reviews) {
+    //             const truncatedText =
+    //               review.text.length > 100
+    //                 ? review.text.substring(0, 100) + '...'
+    //                 : review.text;
+    //             popupContent += truncatedText + '<br><br>';
+    //           }
+    //           // popupContent += `</div>`;
+    //           // popupContent += `<div id="menu-${restaurant.restaurantName}" style="display:none">`;
+    //           // Ajoutez ici le contenu du menu en fonction de l'ID du restaurant
+    //           popupContent += `Menu du restaurant ${restaurant.restaurantName}`;
+    //           // popupContent += `</div>`;
+    //           // popupContent += `</div>`;
+
+    //           const popupOptions = {
+    //             maxHeight: 300,
+    //           };
+
+    //           L.marker([restaurant.latitude, restaurant.longitude])
+    //             .addTo(this.map)
+    //             .bindPopup(popupContent, popupOptions);
+    //         });
+    //     }
+    //   }
+    // }
+    //   }
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+      // Appelez la fonction updateMapWithReviews() lorsque le document est prêt
+      updateMapWithReviews();
+    });
+  </script>
+</body>
+</html>
