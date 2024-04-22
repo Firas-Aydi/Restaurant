@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { forkJoin } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-map',
@@ -13,7 +14,7 @@ export class MapComponent implements OnInit {
   map: any;
   count = 0;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     this.initializeMap();
@@ -73,23 +74,23 @@ export class MapComponent implements OnInit {
     // Créez le contenu de la popup pour chaque restaurant
     const uniqueId = this.generateUniqueId();
     popupContent += `<button id="${uniqueId}" style="background-color: #4CAF50; /* Green */
-  border: none;
-  color: white;
-  padding: 5px 22px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 4px 2px;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  outline: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
-  }}">Menu</button><br>`;
+    border: none;
+    color: white;
+    padding: 5px 22px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    outline: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
+    }}">Menu</button><br>`;
     document.addEventListener('click', (event) => {
       const targetElement = event.target as HTMLElement;
       if (targetElement && targetElement.id === uniqueId) {
@@ -157,7 +158,6 @@ export class MapComponent implements OnInit {
     // }
     return popupContent;
   }
-
   showMenu(rest: string) {
     const restaurant = JSON.parse(decodeURIComponent(rest));
     // console.log("Afficher le restaurant :", restaurant);
@@ -175,6 +175,7 @@ export class MapComponent implements OnInit {
         if (restaurant_menus && restaurant_menus.length > 0) {
           const menu = restaurant_menus[0]; // Sélectionner le premier menu récupéré
           const uniqueId = this.generateUniqueId(); // Générer un identifiant unique pour le bouton
+          const orderId = this.generateUniqueId(); // Générer un identifiant unique pour le bouton
           // Construction du contenu du menu
           var menuContent = `<div class="menu-content" style="height: 400px; width: 300px;">
           <button id="${uniqueId}" style="background-color: #008CBA; /* Blue */
@@ -195,36 +196,63 @@ export class MapComponent implements OnInit {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           }}">Reviews</button><br>
-          <b>Menu for ${restaurant.restaurantName}</b><br>`;
-
-          // Ajouter les détails de chaque plat du menu
+          <b>Menu for ${restaurant.restaurantName}</b><br>
+          <p>Dishes: </p>`;
           menu.plats.forEach(
             (plat: { name: any; price: any; image: any }, index: number) => {
-              menuContent += `<div><p>Plat ${index + 1}</p>`;
-              menuContent += `<p>Name: ${plat.name}</p>`;
-              menuContent += `<p>Price: ${plat.price}</p>`;
-              menuContent += `<img src="${plat.image}" alt="${plat.name}" style="max-width: 100px; max-height: 100px;">`;
-              menuContent += `</div>`;
+              menuContent += `<ul style="list-style: none; padding: 0;">
+              <li style="margin-bottom: 10px;border: 1px solid #ddd;padding: 10px;padding-right: 20px;border-radius: 5px;">
+              <h6 style="margin= 0px">
+              <img src="${plat.image}" alt="${plat.name}" style="height: 25px;width: 25px;object-fit: cover;margin-right: 5px;">
+              ${plat.name}
+              <spam style="float: right;color: #007BFF;">${plat.price} dt</spam>
+              </h6>
+              </li>
+              </ul>`;
             }
           );
-
-          // Fermeture de la balise div
-          menuContent += `</div>`;
-          // Ajoutez un gestionnaire d'événements pour le clic sur le bouton
-          // document.addEventListener("click", function (event) {
-          //   if (event.target && event.target.id === uniqueId) {
-          //     // showMenu(restaurant);
-          //     this.showReviews(
-          //       `${encodeURIComponent(JSON.stringify(restaurant))}`
-          //     );
-          //   }
-          // });
+          menuContent += `
+          <button id="${orderId}" class="btn btn-primary" type="button">
+            Place Order 
+          </button>
+          <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+            <div class="offcanvas-header">
+              <h4 class="offcanvas-title" id="offcanvasExampleLabel">Menu for ${restaurant.restaurantName}</h4>
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div>
+                <b>Dishes:</b><br>
+              </div>`;
+          menu.plats.forEach(
+            (plat: { name: any; price: any; image: any }, index: number) => {
+              menuContent += `<ul style="list-style: none; padding: 0;">
+                  <li style="margin-bottom: 10px;border: 1px solid #ddd;padding: 10px;padding-right: 20px;border-radius: 5px;">
+                  <h6 style="margin= 0px">
+                  <img src="${plat.image}" alt="${plat.name}" style="height: 25px;width: 25px;object-fit: cover;margin-right: 5px;">
+                  ${plat.name}
+                  <spam style="float: right;color: #007BFF;">${plat.price} dt</spam>
+                  </h6>
+                  </li>
+                  </ul>`;
+            }
+          );
+          menuContent += `
+                </div>
+              </div>
+            </div>`;
           document.addEventListener('click', (event) => {
             const targetElement = event.target as HTMLElement;
             if (targetElement && targetElement.id === uniqueId) {
               this.showReviews(
                 `${encodeURIComponent(JSON.stringify(restaurant))}`
               );
+            }
+          });
+          document.addEventListener('click', (event) => {
+            const targetElement = event.target as HTMLElement;
+            if (targetElement && targetElement.id === orderId) {
+              this.placeOrder(`${encodeURIComponent(JSON.stringify(menu))}`);
             }
           });
 
@@ -322,6 +350,13 @@ export class MapComponent implements OnInit {
       .catch((error) => {
         console.error('Error fetching menu:', error);
       });
+  }
+  placeOrder(menu: string) {
+    // Stocker le menu actuel dans un endroit où il peut être accessible depuis la page de commande
+    localStorage.setItem('currentMenu', menu);
+    // Rediriger vers la page de commande
+    // window.location.href = 'order';
+    this.router.navigate(['/order']);
   }
 
   // Function to handle showing reviews

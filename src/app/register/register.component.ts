@@ -85,7 +85,7 @@ export class RegisterComponent implements OnInit {
               longitude: data.longitude,
               reviews: [
                 {
-                  text: 'We ordered delivery, and it came early and the order was perfect! One of our favorite pizza places in the city, and this location is dangerously close to our house. Definitely doing this again.',
+                  text: '',
                 },
               ],
             };

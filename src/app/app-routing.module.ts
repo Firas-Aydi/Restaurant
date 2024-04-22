@@ -8,6 +8,7 @@ import { PlatComponent } from './plat/plat.component';
 import { PrixComponent } from './prix/prix.component';
 import { MenuComponent } from './menu/menu.component';
 import { MapComponent } from './map/map.component';
+import { OrderComponent } from './order/order.component';
 
 const routes: Routes = [
   {path:'',component:HomeComponent},
@@ -18,6 +19,7 @@ const routes: Routes = [
   {path:'prix',component:PrixComponent},
   {path:'menu',component:MenuComponent},
   {path:'map',component:MapComponent},
+  {path:'order',component:OrderComponent},
   // {path:'http://127.0.0.1:5000',component:MapComponent},
   
 ];

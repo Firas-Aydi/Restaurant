@@ -19,6 +19,7 @@ import { PrixComponent } from './prix/prix.component';
 import { MenuComponent } from './menu/menu.component';
 import { MapComponent } from './map/map.component';
 import { HttpClientModule } from '@angular/common/http';
+import { OrderComponent } from './order/order.component';
 // import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
@@ -32,7 +33,8 @@ import { HttpClientModule } from '@angular/common/http';
     PlatComponent,
     PrixComponent,
     MenuComponent,
-    MapComponent
+    MapComponent,
+    OrderComponent
   ],
   imports: [
     BrowserModule,

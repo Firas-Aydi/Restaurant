@@ -1,0 +1,24 @@
+<p>order works!</p>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+  <div class="offcanvas-header">
+    <!-- <h4 class="offcanvas-title" id="offcanvasExampleLabel">Menu for {{ menu.restaurantName }}</h4> -->
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div>
+      <b>Dishes:</b><br>
+    </div>
+    <div *ngFor="let plat of menu.plats">
+      <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 10px;border: 1px solid #ddd;padding: 10px;padding-right: 20px;border-radius: 5px;">
+          <h6 style="margin: 0px">
+            <img src="{{ plat.image }}" alt="{{ plat.name }}" style="height: 25px;width: 25px;object-fit: cover;margin-right: 5px;">
+            {{ plat.name }}
+            <span style="float: right;color: #007BFF;">{{ plat.price }} dt</span>
+          </h6>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
