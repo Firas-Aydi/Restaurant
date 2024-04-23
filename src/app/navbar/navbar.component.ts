@@ -15,20 +15,6 @@ export class NavbarComponent implements OnInit {
   userType: string = ''; // Ajoutez une propriété pour stocker le type d'utilisateur
 
   constructor(private af: AngularFireAuth, private route: Router, private as: AuthService, private firestore: AngularFirestore) {
-    // this.as.user.subscribe(user => {
-    //   if (user) {
-    //     this.isUser = true;
-    //     user.getIdTokenResult().then((idTokenResult) => {
-    //       this.userType = idTokenResult.claims.role;
-    //       console.log(idTokenResult)
-    //     }).catch((error) => {
-    //       console.error('Error fetching user token result: ', error);
-    //     });
-    //         } else {
-    //     this.isUser = false;
-    //     this.userType = '';
-    //   }
-    // })
     this.as.user.subscribe((user) => {
       if (user) {
         this.isUser = true;

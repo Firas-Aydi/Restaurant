@@ -148,8 +148,8 @@ export class MapComponent implements OnInit {
 
     for (const review of restaurant.reviews) {
       const truncatedText =
-        review.text.length > 100
-          ? review.text.substring(0, 100) + '...'
+        review.text.length > 200
+          ? review.text.substring(0, 200) + '...'
           : review.text;
       popupContent += truncatedText + '<br><br>';
     }

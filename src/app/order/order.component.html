@@ -4,9 +4,6 @@
         <div class="menu-content" style="height: 100%; width: 100%;">
           <b class="row justify-content-center">Our Menu</b><br>
           <div class="border p-4 shadow rounded">
-            <div>
-              <!-- <b>Our Dishes:</b><br> -->
-            </div>
             <div *ngFor="let plat of menu.plats; let i = index">
               <ul style="list-style: none; padding: 0;">
                 <li style="margin-bottom: 10px;border: 1px solid #ddd;padding: 10px;padding-right: 20px;border-radius: 5px;">
@@ -20,18 +17,49 @@
                     <div class="col">
                       <button class="btn btn-danger" (click)="decrementQuantity(i)">-</button>
                     </div>
-                    <div class="col text-center">{{ plat.quantity }}
-                    </div>
+                    <div class="col text-center">{{ plat.quantity }}</div>
                     <div class="col text-end">
                       <button class="btn btn-success" (click)="incrementQuantity(i)">+</button>
+                    </div>
+                  </div>
+                  <!-- Champ de texte pour permettre au client d'écrire -->
+                  <div class="row mt-2">
+                    <div class="col">
+                      <input type="text" class="form-control" [(ngModel)]="plat.customization" placeholder="Customization">
                     </div>
                   </div>
                 </li>
               </ul>
             </div>
+            <!-- Prix total -->
+            <div class="text-center mt-3">
+              <b>Total Price: {{ totalPrice }} dt</b>
+            </div>
+            <div class="text-center mt-3">
+            <button class="btn btn-primary m-2" data-bs-toggle="modal" data-bs-target="#orderModel" (click)="placeOrder()">Place Order</button>
+
+              </div>
+              
           </div>
         </div>
       </div>
     </div>
   </div>
   
+  <div class="modal fade" id="orderModel" tabindex="-1" aria-labelledby="orderModel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmation</h5>
+          <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+        </div>
+        <div class="alert alert-success" role="alert" class="modal-body">
+            <b>Order placed successfully!</b>
+        </div>
+        <div class="modal-footer">
+            <!-- <button type="button" class="btn btn-primary" [routerLink]="['/map']">Confirm</button> -->
+            <button type="button" class="btn btn-primary" (click)="confirmOrder()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
