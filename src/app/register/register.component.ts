@@ -63,7 +63,7 @@ export class RegisterComponent implements OnInit {
           const userData: {
             uid: string;
             flName: string;
-            Telephone: number;
+            telephone: number;
             email: string;
             password: string;
             role: string;
@@ -71,7 +71,7 @@ export class RegisterComponent implements OnInit {
           } = {
             uid: userCredential.user.uid,
             flName: data.flName,
-            Telephone: data.Telephone,
+            telephone: data.telephone,
             email: data.email,
             password: data.password,
             role: this.userType === 'client' ? 'client' : 'restaurantOwner',

@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 })
 export class OrderComponent implements OnInit {
   menu: any;
+  restaurant: any;
   totalPrice: number = 0;
 
   constructor(private router:Router,private fs: AngularFirestore) {}
@@ -59,6 +60,12 @@ export class OrderComponent implements OnInit {
 
   placeOrder() {
     const userConnect = localStorage.getItem('userConnect');
+    const storedRest = localStorage.getItem('currentRestaurant');
+    if (storedRest !== null) {
+      const decodedRest = decodeURIComponent(storedRest);
+      this.restaurant = JSON.parse(decodedRest);
+    }
+    const ownerId = localStorage.getItem('currentUid');
     if (userConnect) {
       // Récupérer l'UID de l'utilisateur connecté
       const userId = userConnect;
@@ -71,6 +78,7 @@ export class OrderComponent implements OnInit {
             // Obtenir les données de l'utilisateur
             const userData = doc.data();
             if (userData) {
+              const clientId = userData.uid; // Supposons que le nom de l'utilisateur soit stocké sous la clé 'name'
               const clientName = userData.flName; // Supposons que le nom de l'utilisateur soit stocké sous la clé 'name'
               const clientNumber = userData.telephone; // Supposons que le numéro de téléphone de l'utilisateur soit stocké sous la clé 'phoneNumber'
 
@@ -86,6 +94,9 @@ export class OrderComponent implements OnInit {
                 }
               });
               const orderData = {
+                restaurantName:this.restaurant.restaurantName,
+                ownerId:ownerId,
+                clientId: clientId,
                 clientName: clientName,
                 clientNumber: clientNumber,
                 orderDetails: orderDetails,
@@ -99,6 +110,8 @@ export class OrderComponent implements OnInit {
                   console.log('Order placed successfully!');
                   // Effacer le menu du localStorage après avoir passé la commande
                   localStorage.removeItem('currentMenu');
+                  localStorage.removeItem('currentRestaurant');
+                  localStorage.removeItem('currentUid');
                   // Rediriger l'utilisateur vers une autre page si nécessaire
                   // this.route.navigate(['/success']);
                 })

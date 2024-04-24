@@ -39,7 +39,7 @@
 
           <div class="mb-3">
             <div class="input-group">
-              <span class="input-group-text" id="flNameIcon"><i class="far fa-smile"></i></span>
+              <span class="input-group-text" id="telephoneIcon"><i class="fas fa-phone"></i></span>
               <input type="number" name="Telephone" #Telephone="ngModel" ngModel required class="form-control" placeholder="Telephone Number" aria-label="Telephone Number" aria-describedby="flNameIcon">
             </div>
             <div>
@@ -85,6 +85,16 @@
             </div>
             <div>
               <small class="alert text-danger small" *ngIf="flName.errors?.required && flName.touched">First Name and Last Name are required</small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="input-group">
+              <span class="input-group-text" id="telephoneIcon"><i class="fas fa-phone"></i></span>
+              <input type="number" name="telephone" #telephone="ngModel" ngModel required class="form-control" placeholder="Telephone Number" aria-label="Telephone Number" aria-describedby="telephoneIcon">
+            </div>
+            <div>
+              <small class="alert text-danger small" *ngIf="telephone.errors?.required && telephone.touched">Telephone Number is required</small>
             </div>
           </div>
   

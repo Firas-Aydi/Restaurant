@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-map',
@@ -14,7 +15,7 @@ export class MapComponent implements OnInit {
   map: any;
   count = 0;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private fs:AngularFirestore ,private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     this.initializeMap();
@@ -73,7 +74,9 @@ export class MapComponent implements OnInit {
     // if (this.restaurants) {
     // Créez le contenu de la popup pour chaque restaurant
     const uniqueId = this.generateUniqueId();
-    popupContent += `<button id="${uniqueId}" style="background-color: #4CAF50; /* Green */
+    const comentId = this.generateUniqueId();
+    popupContent += `<button id="${uniqueId}" class="btn btn-primary"
+     style="
     border: none;
     color: white;
     padding: 5px 22px;
@@ -144,20 +147,87 @@ export class MapComponent implements OnInit {
     popupContent += `<div style='color:yellow;'><b>Average reviews: ${AverageReviews}</b></div>`;
     popupContent += `<div style='color:orange;'><b>Poor reviews: ${PoorReviews}</b></div>`;
     popupContent += `<div style='color:red;'><b>Terrible reviews: ${TerribleReviews}</b></div>`;
+    popupContent += `
+      <br>
+      <div>
+        <textarea id="commentInput" placeholder="Write a new comment..." style="width: 100%; height: 30px;"></textarea>
+        <br>
+        <button id="${comentId}" class="btn btn-primary" type="button" 
+          style="border: none;
+          color: white;
+          padding: 5px 22px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+          border-radius: 10px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          ">Submit
+        </button>
+      </div>
+    `;
+    document.addEventListener('click', async (event) => {
+      const targetElement = event.target as HTMLElement;
+      if (targetElement && targetElement.id === comentId) {
+        const commentInput = document.getElementById('commentInput') as HTMLTextAreaElement;
+        const commentText = commentInput.value.trim();
+        if (commentText !== '') {
+          await this.saveCommentToFirebase(restaurant, commentText);
+          // this.fetchRestaurants()
+          // window.location.reload();
+          //Long polling
+        }
+      }
+    });
     popupContent += `<br><b>Reviews:</b><br>`;
-
     for (const review of restaurant.reviews) {
       const truncatedText =
-        review.text.length > 200
-          ? review.text.substring(0, 200) + '...'
+        review.text.length > 150
+          ? review.text.substring(0, 150) + '...'
           : review.text;
       popupContent += truncatedText + '<br><br>';
     }
-    // console.log('popupContent:', popupContent);
-
-    // }
     return popupContent;
   }
+  async saveCommentToFirebase(restaurant: any, commentText: string) {
+    try {
+      // Chercher l'utilisateur associé au restaurant en utilisant le nom du restaurant
+      const userSnapshot = await this.fs.collection('users').ref
+        .where('restaurantData.restaurantName', '==', restaurant.restaurantName)
+        .get();
+        // console.log('userSnapshot:', userSnapshot);
+  
+      if (userSnapshot.empty) {
+        console.error('User not found for the restaurant:', restaurant.restaurantName);
+        return;
+      }
+  
+      // Récupérer l'ID de l'utilisateur associé
+      let userId;
+      userSnapshot.forEach(doc => {
+        userId = doc.id;
+      });
+  
+      // Sauvegardez le commentaire dans la table de cet utilisateur
+      await this.fs.collection('users').doc(userId).set({
+        restaurantData: {
+            reviews: [
+                ...restaurant.reviews,
+                {text: commentText}
+            ]
+        }
+      }, { merge: true });
+
+      console.log('Comment saved successfully!');
+      this.fetchRestaurants()
+      window.location.reload();
+    } catch (error) {
+      console.error('Error saving comment:', error);
+    }
+  }
+  
   showMenu(rest: string) {
     const restaurant = JSON.parse(decodeURIComponent(rest));
     // console.log("Afficher le restaurant :", restaurant);
@@ -178,7 +248,8 @@ export class MapComponent implements OnInit {
           const orderId = this.generateUniqueId(); // Générer un identifiant unique pour le bouton
           // Construction du contenu du menu
           var menuContent = `<div class="menu-content" style="height: 400px; width: 300px;">
-          <button id="${uniqueId}" style="background-color: #008CBA; /* Blue */
+          <button id="${uniqueId}" class="btn btn-primary"
+           style="
           border: none;
           color: white;
           padding: 5px 22px;
@@ -252,7 +323,7 @@ export class MapComponent implements OnInit {
           document.addEventListener('click', (event) => {
             const targetElement = event.target as HTMLElement;
             if (targetElement && targetElement.id === orderId) {
-              this.placeOrder(`${encodeURIComponent(JSON.stringify(menu))}`);
+              this.placeOrder(`${encodeURIComponent(JSON.stringify(menu))}`,`${encodeURIComponent(JSON.stringify(restaurant))}`);
             }
           });
 
@@ -351,12 +422,33 @@ export class MapComponent implements OnInit {
         console.error('Error fetching menu:', error);
       });
   }
-  placeOrder(menu: string) {
+  async placeOrder(menu: string,rest:any) {
     // Stocker le menu actuel dans un endroit où il peut être accessible depuis la page de commande
     localStorage.setItem('currentMenu', menu);
-    // Rediriger vers la page de commande
-    // window.location.href = 'order';
-    this.router.navigate(['/order']);
+    localStorage.setItem('currentRestaurant', rest);
+    const storedRest = rest
+    if (storedRest !== null) {
+      const decodedRest = decodeURIComponent(storedRest);
+      const restaurant = JSON.parse(decodedRest);
+      console.log("restaurant:",restaurant)
+      const userSnapshot = await this.fs.collection('users').ref
+      .where('restaurantData.restaurantName', '==', restaurant.restaurantName)
+      .get();
+      // console.log('userSnapshot:', userSnapshot);
+      
+      if (userSnapshot.empty) {
+        console.error('User not found for the restaurant:', restaurant.restaurantName);
+        return;
+      }
+      
+      // Récupérer l'ID de l'utilisateur associé
+      let userId;
+      userSnapshot.forEach(doc => {
+        userId = doc.id;
+        localStorage.setItem('currentUid', userId);
+      });
+    }
+      this.router.navigate(['/order']);
   }
 
   // Function to handle showing reviews
