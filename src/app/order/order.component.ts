@@ -14,7 +14,7 @@ export class OrderComponent implements OnInit {
   restaurant: any;
   totalPrice: number = 0;
 
-  constructor(private router:Router,private fs: AngularFirestore) {}
+  constructor(private router: Router, private fs: AngularFirestore) {}
 
   ngOnInit(): void {
     // Récupérer le menu depuis le localStorage
@@ -71,9 +71,13 @@ export class OrderComponent implements OnInit {
       const userId = userConnect;
 
       // Utiliser l'UID pour obtenir les détails de l'utilisateur depuis Firebase
-      this.fs.collection('users').doc(userId).get().toPromise()
+      this.fs
+        .collection('users')
+        .doc(userId)
+        .get()
+        .toPromise()
         .then((doc) => {
-          console.log('doc.data: ',doc.data())
+          console.log('doc.data: ', doc.data());
           if (doc.exists) {
             // Obtenir les données de l'utilisateur
             const userData = doc.data();
@@ -83,7 +87,11 @@ export class OrderComponent implements OnInit {
               const clientNumber = userData.telephone; // Supposons que le numéro de téléphone de l'utilisateur soit stocké sous la clé 'phoneNumber'
 
               // Continuer avec le reste de la fonction placeOrder en utilisant les données récupérées
-              const orderDetails: { name: any; quantity: any; customization: any }[] = [];
+              const orderDetails: {
+                name: any;
+                quantity: any;
+                customization: any;
+              }[] = [];
               this.menu.plats.forEach((plat: any) => {
                 if (plat.quantity > 0) {
                   orderDetails.push({
@@ -94,8 +102,8 @@ export class OrderComponent implements OnInit {
                 }
               });
               const orderData = {
-                restaurantName:this.restaurant.restaurantName,
-                ownerId:ownerId,
+                restaurantName: this.restaurant.restaurantName,
+                ownerId: ownerId,
                 clientId: clientId,
                 clientName: clientName,
                 clientNumber: clientNumber,
@@ -105,7 +113,9 @@ export class OrderComponent implements OnInit {
               };
 
               // Enregistrement de la commande dans Firebase
-              this.fs.collection('orders').add(orderData)
+              this.fs
+                .collection('orders')
+                .add(orderData)
                 .then(() => {
                   console.log('Order placed successfully!');
                   // Effacer le menu du localStorage après avoir passé la commande
@@ -119,10 +129,10 @@ export class OrderComponent implements OnInit {
                   console.error('Error placing order:', error);
                 });
             } else {
-              console.log("User data is undefined!");
+              console.log('User data is undefined!');
             }
           } else {
-            console.log("User document not found!");
+            console.log('User document not found!');
           }
         })
         .catch((error) => {
@@ -132,12 +142,11 @@ export class OrderComponent implements OnInit {
       // L'utilisateur n'est pas connecté
       console.log('User is not logged in');
       // Rediriger l'utilisateur vers la page de connexion
-      // this.route.navigate(['/login']);
+      this.router.navigate(['/login']);
     }
   }
 
-  confirmOrder(){
-    this.router.navigate(['/map']).then(()=>
-    window.location.reload())
+  confirmOrder() {
+    this.router.navigate(['/map']).then(() => window.location.reload());
   }
 }

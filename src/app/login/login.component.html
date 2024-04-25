@@ -8,7 +8,7 @@
           <!-- <label for="email" class="form-label"><i class="fas fa-user"></i> Email</label> -->
           <div class="input-group">
             <span class="input-group-text" id="emailIcon"><i class="fas fa-envelope"></i></span>
-            <input type="text" #email="ngModel" ngModel name="email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="emailIcon">
+            <input type="text" autocomplete="username" #email="ngModel" ngModel name="email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="emailIcon">
           </div>
         </div>
 
@@ -16,7 +16,7 @@
           <!-- <label for="password" class="form-label"><i class="fas fa-lock"></i> Password</label> -->
           <div class="input-group">
             <span class="input-group-text" id="passwordIcon"><i class="fas fa-lock"></i></span>
-            <input type="password" #password="ngModel" ngModel name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="passwordIcon">
+            <input type="password" autocomplete="current-password" #password="ngModel" ngModel name="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="passwordIcon">
           </div>
         </div>
 

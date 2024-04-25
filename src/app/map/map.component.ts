@@ -423,6 +423,9 @@ export class MapComponent implements OnInit {
       });
   }
   async placeOrder(menu: string,rest:any) {
+    const userConnect = localStorage.getItem('userConnect');
+    if (userConnect) {
+
     // Stocker le menu actuel dans un endroit où il peut être accessible depuis la page de commande
     localStorage.setItem('currentMenu', menu);
     localStorage.setItem('currentRestaurant', rest);
@@ -449,6 +452,14 @@ export class MapComponent implements OnInit {
       });
     }
       this.router.navigate(['/order']);
+    } else {
+      // L'utilisateur n'est pas connecté
+      if (confirm('Vous devez être connecté pour accéder à cette page. Voulez-vous vous connecter maintenant ?')) {
+        // Rediriger l'utilisateur vers la page de connexion
+        this.router.navigate(['/login']);
+      }
+    }
+    
   }
 
   // Function to handle showing reviews

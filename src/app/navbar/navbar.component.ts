@@ -7,32 +7,40 @@ import { AngularFirestore } from '@angular/fire/firestore'; // Importez le servi
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit {
-
   isUser: boolean = false;
   userType: string = ''; // Ajoutez une propriété pour stocker le type d'utilisateur
 
-  constructor(private af: AngularFireAuth, private route: Router, private as: AuthService, private firestore: AngularFirestore) {
+  constructor(
+    private af: AngularFireAuth,
+    private route: Router,
+    private as: AuthService,
+    private firestore: AngularFirestore
+  ) {
     this.as.user.subscribe((user) => {
       if (user) {
         this.isUser = true;
         const userId = user.uid;
-        this.firestore.collection('users').doc(userId).get().subscribe((doc) => {
-          // console.log('doc:', doc);
-          if (doc.exists) {
-            const userData = doc.data();
-            if (userData && userData.role) {
-              this.userType = userData.role;
-              // console.log('User Type:', this.userType);
+        this.firestore
+          .collection('users')
+          .doc(userId)
+          .get()
+          .subscribe((doc) => {
+            // console.log('doc:', doc);
+            if (doc.exists) {
+              const userData = doc.data();
+              if (userData && userData.role) {
+                this.userType = userData.role;
+                // console.log('User Type:', this.userType);
+              } else {
+                console.log('Role not found in user data');
+              }
             } else {
-              console.log('Role not found in user data');
+              console.log('User data not found');
             }
-          } else {
-            console.log('User data not found');
-          }
-        });
+          });
       } else {
         this.isUser = false;
         this.userType = '';
@@ -40,17 +48,20 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   logout() {
-    this.af.signOut()
+    this.af
+      .signOut()
       .then(() => {
-        localStorage.removeItem("userConnect");
+        localStorage.removeItem('userConnect');
+        localStorage.removeItem('currentMenu');
+        localStorage.removeItem('currentRestaurant');
+        localStorage.removeItem('currentUid');
         this.route.navigate(['/login']);
       })
       .catch(() => {
-        console.log("error");
+        console.log('error');
       });
   }
 }

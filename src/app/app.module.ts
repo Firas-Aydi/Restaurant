@@ -20,6 +20,7 @@ import { MenuComponent } from './menu/menu.component';
 import { MapComponent } from './map/map.component';
 import { HttpClientModule } from '@angular/common/http';
 import { OrderComponent } from './order/order.component';
+import { OurOrdersComponent } from './our-orders/our-orders.component';
 // import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
@@ -34,7 +35,8 @@ import { OrderComponent } from './order/order.component';
     PrixComponent,
     MenuComponent,
     MapComponent,
-    OrderComponent
+    OrderComponent,
+    OurOrdersComponent
   ],
   imports: [
     BrowserModule,

@@ -9,6 +9,7 @@ import { PrixComponent } from './prix/prix.component';
 import { MenuComponent } from './menu/menu.component';
 import { MapComponent } from './map/map.component';
 import { OrderComponent } from './order/order.component';
+import { OurOrdersComponent } from './our-orders/our-orders.component';
 
 const routes: Routes = [
   {path:'',component:HomeComponent},
@@ -20,6 +21,7 @@ const routes: Routes = [
   {path:'menu',component:MenuComponent},
   {path:'map',component:MapComponent},
   {path:'order',component:OrderComponent},
+  {path:'ourOrders',component:OurOrdersComponent},
   
 ];
 
