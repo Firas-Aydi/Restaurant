@@ -59,90 +59,96 @@ export class OrderComponent implements OnInit {
   }
 
   placeOrder() {
-    const userConnect = localStorage.getItem('userConnect');
-    const storedRest = localStorage.getItem('currentRestaurant');
-    if (storedRest !== null) {
-      const decodedRest = decodeURIComponent(storedRest);
-      this.restaurant = JSON.parse(decodedRest);
-    }
-    const ownerId = localStorage.getItem('currentUid');
-    if (userConnect) {
-      // Récupérer l'UID de l'utilisateur connecté
-      const userId = userConnect;
-
-      // Utiliser l'UID pour obtenir les détails de l'utilisateur depuis Firebase
-      this.fs
-        .collection('users')
-        .doc(userId)
-        .get()
-        .toPromise()
-        .then((doc) => {
-          console.log('doc.data: ', doc.data());
-          if (doc.exists) {
-            // Obtenir les données de l'utilisateur
-            const userData = doc.data();
-            if (userData) {
-              const clientId = userData.uid; // Supposons que le nom de l'utilisateur soit stocké sous la clé 'name'
-              const clientName = userData.flName; // Supposons que le nom de l'utilisateur soit stocké sous la clé 'name'
-              const clientNumber = userData.telephone; // Supposons que le numéro de téléphone de l'utilisateur soit stocké sous la clé 'phoneNumber'
-
-              // Continuer avec le reste de la fonction placeOrder en utilisant les données récupérées
-              const orderDetails: {
-                name: any;
-                quantity: any;
-                customization: any;
-              }[] = [];
-              this.menu.plats.forEach((plat: any) => {
-                if (plat.quantity > 0) {
-                  orderDetails.push({
-                    name: plat.name,
-                    quantity: plat.quantity,
-                    customization: plat.customization,
-                  });
-                }
-              });
-              const orderData = {
-                restaurantName: this.restaurant.restaurantName,
-                ownerId: ownerId,
-                clientId: clientId,
-                clientName: clientName,
-                clientNumber: clientNumber,
-                orderDetails: orderDetails,
-                totalPrice: this.totalPrice,
-                orderDate: new Date().toISOString(),
-              };
-
-              // Enregistrement de la commande dans Firebase
-              this.fs
-                .collection('orders')
-                .add(orderData)
-                .then(() => {
-                  console.log('Order placed successfully!');
-                  // Effacer le menu du localStorage après avoir passé la commande
-                  localStorage.removeItem('currentMenu');
-                  localStorage.removeItem('currentRestaurant');
-                  localStorage.removeItem('currentUid');
-                  // Rediriger l'utilisateur vers une autre page si nécessaire
-                  // this.route.navigate(['/success']);
-                })
-                .catch((error) => {
-                  console.error('Error placing order:', error);
-                });
-            } else {
-              console.log('User data is undefined!');
-            }
-          } else {
-            console.log('User document not found!');
-          }
-        })
-        .catch((error) => {
-          console.error('Error getting user document:', error);
-        });
+    if (this.totalPrice <= 0) {
+      // Afficher une alerte si le prix total est inférieur ou égal à 0
+      alert('Please choose at least one item before placing the order.');
+      return; // Arrêter l'exécution de la fonction
     } else {
-      // L'utilisateur n'est pas connecté
-      console.log('User is not logged in');
-      // Rediriger l'utilisateur vers la page de connexion
-      this.router.navigate(['/login']);
+      const userConnect = localStorage.getItem('userConnect');
+      const storedRest = localStorage.getItem('currentRestaurant');
+      if (storedRest !== null) {
+        const decodedRest = decodeURIComponent(storedRest);
+        this.restaurant = JSON.parse(decodedRest);
+      }
+      const ownerId = localStorage.getItem('currentUid');
+      if (userConnect) {
+        // Récupérer l'UID de l'utilisateur connecté
+        const userId = userConnect;
+
+        // Utiliser l'UID pour obtenir les détails de l'utilisateur depuis Firebase
+        this.fs
+          .collection('users')
+          .doc(userId)
+          .get()
+          .toPromise()
+          .then((doc) => {
+            console.log('doc.data: ', doc.data());
+            if (doc.exists) {
+              // Obtenir les données de l'utilisateur
+              const userData = doc.data();
+              if (userData) {
+                const clientId = userData.uid; // Supposons que le nom de l'utilisateur soit stocké sous la clé 'name'
+                const clientName = userData.flName; // Supposons que le nom de l'utilisateur soit stocké sous la clé 'name'
+                const clientNumber = userData.telephone; // Supposons que le numéro de téléphone de l'utilisateur soit stocké sous la clé 'phoneNumber'
+
+                // Continuer avec le reste de la fonction placeOrder en utilisant les données récupérées
+                const orderDetails: {
+                  name: any;
+                  quantity: any;
+                  customization: any;
+                }[] = [];
+                this.menu.plats.forEach((plat: any) => {
+                  if (plat.quantity > 0) {
+                    orderDetails.push({
+                      name: plat.name,
+                      quantity: plat.quantity,
+                      customization: plat.customization,
+                    });
+                  }
+                });
+                const orderData = {
+                  restaurantName: this.restaurant.restaurantName,
+                  ownerId: ownerId,
+                  clientId: clientId,
+                  clientName: clientName,
+                  clientNumber: clientNumber,
+                  orderDetails: orderDetails,
+                  totalPrice: this.totalPrice,
+                  orderDate: new Date().toISOString(),
+                };
+
+                // Enregistrement de la commande dans Firebase
+                this.fs
+                  .collection('orders')
+                  .add(orderData)
+                  .then(() => {
+                    console.log('Order placed successfully!');
+                    // Effacer le menu du localStorage après avoir passé la commande
+                    localStorage.removeItem('currentMenu');
+                    localStorage.removeItem('currentRestaurant');
+                    localStorage.removeItem('currentUid');
+                    // Rediriger l'utilisateur vers une autre page si nécessaire
+                    // this.route.navigate(['/success']);
+                  })
+                  .catch((error) => {
+                    console.error('Error placing order:', error);
+                  });
+              } else {
+                console.log('User data is undefined!');
+              }
+            } else {
+              console.log('User document not found!');
+            }
+          })
+          .catch((error) => {
+            console.error('Error getting user document:', error);
+          });
+      } else {
+        // L'utilisateur n'est pas connecté
+        console.log('User is not logged in');
+        // Rediriger l'utilisateur vers la page de connexion
+        this.router.navigate(['/login']);
+      }
     }
   }
 

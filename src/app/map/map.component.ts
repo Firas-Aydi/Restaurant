@@ -4,6 +4,7 @@ import * as L from 'leaflet';
 import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-map',
@@ -15,7 +16,7 @@ export class MapComponent implements OnInit {
   map: any;
   count = 0;
 
-  constructor(private fs:AngularFirestore ,private http: HttpClient, private router: Router) {}
+  constructor(private fs:AngularFirestore ,private http: HttpClient, private router: Router, private afAuth: AngularFireAuth) {}
 
   ngOnInit(): void {
     this.initializeMap();
@@ -100,20 +101,23 @@ export class MapComponent implements OnInit {
         this.showMenu(`${encodeURIComponent(JSON.stringify(restaurant))}`);
       }
     });
-    popupContent += `<b>${restaurant.restaurantName}</b><br>
-          ${restaurant.address}, ${restaurant.city}, ${restaurant.state} ${restaurant.postalCode}<br>
-          Stars: ${restaurant.stars}<br>`;
+    popupContent += `<br><b>${restaurant.restaurantName}</b><br>
+          ${restaurant.address}, ${restaurant.city}, ${restaurant.state} ${restaurant.postalCode}<br><br>`;
+          // Stars: ${restaurant.stars}<br>
 
     // Effectuez toutes les requêtes HTTP de manière asynchrone
     const sentimentRequests = restaurant.reviews.map((review: any) =>
+      // {console.log('text: ',review.text),
       this.http.post<any>('http://localhost:5000/predict_sentiment', {
         text: review.text,
-      })
-    );
+      }
+    )
+  // }
+  );
 
     // Attendez que toutes les requêtes soient terminées
     const sentimentResponses = await forkJoin(sentimentRequests).toPromise();
-
+    // console.log('sentimentResponses: ',sentimentResponses)
     let TerribleReviews = 0;
     let PoorReviews = 0;
     let AverageReviews = 0;
@@ -164,7 +168,7 @@ export class MapComponent implements OnInit {
           cursor: pointer;
           border-radius: 10px;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-          ">Submit
+          ">  <i class="fa-solid fa-pen-alt" data-fa-transform="shrink-10 up-.5" data-fa-mask="fa-solid fa-comment" data-fa-mask-id="comment"></i>
         </button>
       </div>
     `;
@@ -189,8 +193,45 @@ export class MapComponent implements OnInit {
           : review.text;
       popupContent += truncatedText + '<br><br>';
     }
-    return popupContent;
-  }
+    // Mettez à jour les commentaires et enregistrez les résultats dans Firebase
+  // for (let i = 0; i < restaurant.reviews.length; i++) {
+  //   const review = restaurant.reviews[i];
+  //   const sentimentResponse = sentimentResponses[i];
+
+  //   review.sentiment = sentimentResponse; // Ajoutez le champ "sentiment"
+
+  //   // Enregistrez les résultats de la prédiction dans Firebase
+  //   // const user = await this.afAuth.currentUser;
+  //   const userSnapshot = await this.fs.collection('users').ref
+  //       .where('restaurantData.restaurantName', '==', restaurant.restaurantName)
+  //       .get();
+  //       if (userSnapshot.empty) {
+  //         console.error('User not found for the restaurant:', restaurant.restaurantName);
+  //       }
+  //   if (userSnapshot) {
+  //     let userId;
+  //     userSnapshot.forEach(doc => {
+  //       userId = doc.id;
+  //     });
+  //     const userDataRef = this.fs.collection('users').doc(userId);
+  //     const restaurantData = (await userDataRef.get().toPromise()).data()?.restaurantData;
+  //     if (restaurantData) {
+  //       const reviews = restaurantData.reviews || [];
+  //       reviews.push({
+  //         sentiment: review.sentiment,
+  //         // sentiment: sentimentResponse.sentiment,
+  //       });
+  //       await userDataRef.update({ 'restaurantData.reviews': reviews });
+  //       console.log('Sentiment prediction saved to Firebase successfully');
+  //     } else {
+  //       console.error('Restaurant data not found for user:', userId);
+  //     }
+  //   } else {
+  //     console.error('User not authenticated');
+  //   }
+  // }
+  return popupContent;
+}
   async saveCommentToFirebase(restaurant: any, commentText: string) {
     try {
       // Chercher l'utilisateur associé au restaurant en utilisant le nom du restaurant
@@ -454,7 +495,7 @@ export class MapComponent implements OnInit {
       this.router.navigate(['/order']);
     } else {
       // L'utilisateur n'est pas connecté
-      if (confirm('Vous devez être connecté pour accéder à cette page. Voulez-vous vous connecter maintenant ?')) {
+      if (confirm('You must be logged in to access this page. Do you want to log in now?')) {
         // Rediriger l'utilisateur vers la page de connexion
         this.router.navigate(['/login']);
       }
