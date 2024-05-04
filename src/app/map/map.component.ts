@@ -15,16 +15,18 @@ export class MapComponent implements OnInit {
   restaurants: any[] = [];
   map: any;
   count = 0;
-
+  latitude : any
+  longitude : any
   constructor(private fs:AngularFirestore ,private http: HttpClient, private router: Router, private afAuth: AngularFireAuth) {}
 
   ngOnInit(): void {
+    this.getCurrentLocation();
     this.initializeMap();
     this.fetchRestaurants();
   }
 
   initializeMap(): void {
-    this.map = L.map('map').setView([38.6685955, -90.2654703], 4);
+    this.map = L.map('map').setView([34, 10], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap',
@@ -58,6 +60,26 @@ export class MapComponent implements OnInit {
     });
   }
 
+  getCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.latitude = position.coords.latitude;
+          this.longitude = position.coords.longitude;
+          console.log(`Latitude: ${this.latitude}, Longitude: ${this.longitude}`);
+          // localStorage.setItem('latitude', latitude.toString());
+          // localStorage.setItem('longitude', longitude.toString());
+        },
+        (error) => {
+          console.error('Erreur de géolocalisation:', error);
+        }
+      );
+    } else {
+      console.error(
+        "La géolocalisation n'est pas prise en charge par ce navigateur."
+      );
+    }
+  }
   createMarker(restaurant: any, popupContent: string): void {
     L.marker([restaurant.latitude, restaurant.longitude])
       .addTo(this.map)
@@ -69,11 +91,37 @@ export class MapComponent implements OnInit {
   generateUniqueId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
+// Fonction pour calculer la distance entre deux points géographiques en utilisant la formule de Haversine
+calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Rayon de la Terre en kilomètres
+  const dLat = this.deg2rad(lat2 - lat1);
+  const dLon = this.deg2rad(lon2 - lon1);
+  const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance en kilomètres
+  return distance;
+}
 
+// Fonction pour convertir les degrés en radians
+deg2rad(deg: number): number {
+  return deg * (Math.PI / 180);
+}
   async createPopupContent(restaurant: any): Promise<string> {
-    let popupContent = ''; // Initialisez la variable popupContent en dehors de la boucle
-    // if (this.restaurants) {
-    // Créez le contenu de la popup pour chaque restaurant
+    let popupContent = '';
+    // Vérifier si la latitude et la longitude sont disponibles
+    if (this.latitude && this.longitude) {
+        // Convertir latitudeString et longitudeString en nombres
+        const latitude = parseFloat(this.latitude);
+        const longitude = parseFloat(this.longitude);
+        // Calculer la distance entre le restaurant et la position de l'utilisateur
+        const distance = this.calculateDistance(latitude, longitude, restaurant.latitude, restaurant.longitude);
+        
+        // Vérifier si le restaurant est à une distance raisonnable de l'utilisateur
+        const maxDistance = 50; // Définir la distance maximale en kilomètres
+        if (distance <= maxDistance) {
     const uniqueId = this.generateUniqueId();
     const comentId = this.generateUniqueId();
     popupContent += `<button id="${uniqueId}" class="btn btn-primary"
@@ -179,9 +227,6 @@ export class MapComponent implements OnInit {
         const commentText = commentInput.value.trim();
         if (commentText !== '') {
           await this.saveCommentToFirebase(restaurant, commentText);
-          // this.fetchRestaurants()
-          // window.location.reload();
-          //Long polling
         }
       }
     });
@@ -193,43 +238,126 @@ export class MapComponent implements OnInit {
           : review.text;
       popupContent += truncatedText + '<br><br>';
     }
-    // Mettez à jour les commentaires et enregistrez les résultats dans Firebase
-  // for (let i = 0; i < restaurant.reviews.length; i++) {
-  //   const review = restaurant.reviews[i];
-  //   const sentimentResponse = sentimentResponses[i];
-
-  //   review.sentiment = sentimentResponse; // Ajoutez le champ "sentiment"
-
-  //   // Enregistrez les résultats de la prédiction dans Firebase
-  //   // const user = await this.afAuth.currentUser;
-  //   const userSnapshot = await this.fs.collection('users').ref
-  //       .where('restaurantData.restaurantName', '==', restaurant.restaurantName)
-  //       .get();
-  //       if (userSnapshot.empty) {
-  //         console.error('User not found for the restaurant:', restaurant.restaurantName);
-  //       }
-  //   if (userSnapshot) {
-  //     let userId;
-  //     userSnapshot.forEach(doc => {
-  //       userId = doc.id;
-  //     });
-  //     const userDataRef = this.fs.collection('users').doc(userId);
-  //     const restaurantData = (await userDataRef.get().toPromise()).data()?.restaurantData;
-  //     if (restaurantData) {
-  //       const reviews = restaurantData.reviews || [];
-  //       reviews.push({
-  //         sentiment: review.sentiment,
-  //         // sentiment: sentimentResponse.sentiment,
-  //       });
-  //       await userDataRef.update({ 'restaurantData.reviews': reviews });
-  //       console.log('Sentiment prediction saved to Firebase successfully');
-  //     } else {
-  //       console.error('Restaurant data not found for user:', userId);
-  //     }
-  //   } else {
-  //     console.error('User not authenticated');
-  //   }
-  // }
+    }
+    }else{
+        const uniqueId = this.generateUniqueId();
+        const comentId = this.generateUniqueId();
+        popupContent += `<button id="${uniqueId}" class="btn btn-primary"
+         style="
+        border: none;
+        color: white;
+        padding: 5px 22px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        outline: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
+        }}">Menu</button><br>`;
+        document.addEventListener('click', (event) => {
+          const targetElement = event.target as HTMLElement;
+          if (targetElement && targetElement.id === uniqueId) {
+            this.showMenu(`${encodeURIComponent(JSON.stringify(restaurant))}`);
+          }
+        });
+        popupContent += `<br><b>${restaurant.restaurantName}</b><br>
+              ${restaurant.address}, ${restaurant.city}, ${restaurant.state} ${restaurant.postalCode}<br><br>`;
+              // Stars: ${restaurant.stars}<br>
+    
+        // Effectuez toutes les requêtes HTTP de manière asynchrone
+        const sentimentRequests = restaurant.reviews.map((review: any) =>
+          // {console.log('text: ',review.text),
+          this.http.post<any>('http://localhost:5000/predict_sentiment', {
+            text: review.text,
+          }
+        )
+      // }
+      );
+    
+        // Attendez que toutes les requêtes soient terminées
+        const sentimentResponses = await forkJoin(sentimentRequests).toPromise();
+        // console.log('sentimentResponses: ',sentimentResponses)
+        let TerribleReviews = 0;
+        let PoorReviews = 0;
+        let AverageReviews = 0;
+        let GoodReviews = 0;
+        let ExcellentReviews = 0;
+    
+        sentimentResponses.forEach((data: any) => {
+          // console.log('data: ', data);
+          switch (data.sentiment) {
+            case 'Terrible':
+              TerribleReviews++;
+              break;
+            case 'Poor':
+              PoorReviews++;
+              break;
+            case 'Average':
+              AverageReviews++;
+              break;
+            case 'Very good':
+              GoodReviews++;
+              break;
+            case 'Excellent':
+              ExcellentReviews++;
+              break;
+          }
+          // console.log('GoodReviews:', GoodReviews);
+        });
+    
+        popupContent += `<div style='color:green;'><b>Excellent reviews: ${ExcellentReviews}</b></div>`;
+        popupContent += `<div style='color:blue;'><b>Very good reviews: ${GoodReviews}</b></div>`;
+        popupContent += `<div style='color:yellow;'><b>Average reviews: ${AverageReviews}</b></div>`;
+        popupContent += `<div style='color:orange;'><b>Poor reviews: ${PoorReviews}</b></div>`;
+        popupContent += `<div style='color:red;'><b>Terrible reviews: ${TerribleReviews}</b></div>`;
+        popupContent += `
+          <br>
+          <div>
+            <textarea id="commentInput" placeholder="Write a new comment..." style="width: 100%; height: 30px;"></textarea>
+            <br>
+            <button id="${comentId}" class="btn btn-primary" type="button" 
+              style="border: none;
+              color: white;
+              padding: 5px 22px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              margin: 4px 2px;
+              cursor: pointer;
+              border-radius: 10px;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+              ">  <i class="fa-solid fa-pen-alt" data-fa-transform="shrink-10 up-.5" data-fa-mask="fa-solid fa-comment" data-fa-mask-id="comment"></i>
+            </button>
+          </div>
+        `;
+        document.addEventListener('click', async (event) => {
+          const targetElement = event.target as HTMLElement;
+          if (targetElement && targetElement.id === comentId) {
+            const commentInput = document.getElementById('commentInput') as HTMLTextAreaElement;
+            const commentText = commentInput.value.trim();
+            if (commentText !== '') {
+              await this.saveCommentToFirebase(restaurant, commentText);
+            }
+          }
+        });
+        popupContent += `<br><b>Reviews:</b><br>`;
+        for (const review of restaurant.reviews) {
+          const truncatedText =
+            review.text.length > 150
+              ? review.text.substring(0, 150) + '...'
+              : review.text;
+          popupContent += truncatedText + '<br><br>';
+        }
+        
+    }
   return popupContent;
 }
   async saveCommentToFirebase(restaurant: any, commentText: string) {
@@ -420,7 +548,7 @@ export class MapComponent implements OnInit {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
           }}">Reviews</button><br>
-          <b>Nous sommes désolés, mais aucun menu n'est actuellement disponible pour ce restaurant. Veuillez vérifier à nouveau ultérieurement ou contactez-nous pour plus d'informations</b><br>
+          <b>We regret to inform you that this restaurant does not have a menu available at the moment. Please check back later or contact us for more information.</b><br>
           </div>`;
           document.addEventListener('click', (event) => {
             const targetElement = event.target as HTMLElement;
