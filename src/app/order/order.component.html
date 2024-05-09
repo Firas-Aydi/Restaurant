@@ -15,11 +15,11 @@
                   <!-- Boutons pour incrémenter et décrémenter -->
                   <div class="row mt-2">
                     <div class="col">
-                      <button class="btn btn-danger" (click)="decrementQuantity(i)">-</button>
+                      <button class="btn btn-danger rounded-circle shadow" (click)="decrementQuantity(i)"><i class="fa-solid fa-minus"></i></button>
                     </div>
                     <div class="col text-center">{{ plat.quantity }}</div>
                     <div class="col text-end">
-                      <button class="btn btn-success" (click)="incrementQuantity(i)">+</button>
+                      <button class="btn btn-success rounded-circle shadow" (click)="incrementQuantity(i)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                   </div>
                   <!-- Champ de texte pour permettre au client d'écrire -->
@@ -36,7 +36,7 @@
               <b>Total Price: {{ totalPrice }} dt</b>
             </div>
             <div class="text-center mt-3">
-            <button class="btn btn-primary m-2" data-bs-toggle="modal" data-bs-target="#orderModel" (click)="placeOrder()">Place Order</button>
+            <button class="btn btn-primary m-2 shadow" data-bs-toggle="modal" data-bs-target="#orderModel" (click)="placeOrder()">Place Order</button>
 
               </div>
               

@@ -452,7 +452,7 @@ deg2rad(deg: number): number {
             }
           );
           menuContent += `
-          <button id="${orderId}" class="btn btn-primary" type="button">
+          <button id="${orderId}" class="btn btn-primary shadow" type="button">
             Place Order 
           </button>
           <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
