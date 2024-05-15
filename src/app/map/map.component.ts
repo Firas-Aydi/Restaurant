@@ -84,7 +84,7 @@ export class MapComponent implements OnInit {
     L.marker([restaurant.latitude, restaurant.longitude])
       .addTo(this.map)
       .bindPopup(() => popupContent, {
-        maxHeight: 300,
+        maxHeight: 350,
       });
   }
 
@@ -120,7 +120,7 @@ deg2rad(deg: number): number {
         const distance = this.calculateDistance(latitude, longitude, restaurant.latitude, restaurant.longitude);
         
         // Vérifier si le restaurant est à une distance raisonnable de l'utilisateur
-        const maxDistance = 50; // Définir la distance maximale en kilomètres
+        const maxDistance = 100; // Définir la distance maximale en kilomètres
         if (distance <= maxDistance) {
     const uniqueId = this.generateUniqueId();
     const comentId = this.generateUniqueId();
@@ -416,7 +416,7 @@ deg2rad(deg: number): number {
           const uniqueId = this.generateUniqueId(); // Générer un identifiant unique pour le bouton
           const orderId = this.generateUniqueId(); // Générer un identifiant unique pour le bouton
           // Construction du contenu du menu
-          var menuContent = `<div class="menu-content" style="height: 400px; width: 300px;">
+          var menuContent = `<div class="menu-content" style="height: 400px; width: 280px;">
           <button id="${uniqueId}" class="btn btn-primary"
            style="
           border: none;
