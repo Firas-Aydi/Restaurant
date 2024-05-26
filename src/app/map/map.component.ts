@@ -233,8 +233,8 @@ deg2rad(deg: number): number {
     popupContent += `<br><b>Reviews:</b><br>`;
     for (const review of restaurant.reviews) {
       const truncatedText =
-        review.text.length > 150
-          ? review.text.substring(0, 150) + '...'
+        review.text.length > 1500
+          ? review.text.substring(0, 1500) + '...'
           : review.text;
       popupContent += truncatedText + '<br><br>';
     }
@@ -351,8 +351,8 @@ deg2rad(deg: number): number {
         popupContent += `<br><b>Reviews:</b><br>`;
         for (const review of restaurant.reviews) {
           const truncatedText =
-            review.text.length > 150
-              ? review.text.substring(0, 150) + '...'
+            review.text.length > 1500
+              ? review.text.substring(0, 1500) + '...'
               : review.text;
           popupContent += truncatedText + '<br><br>';
         }
